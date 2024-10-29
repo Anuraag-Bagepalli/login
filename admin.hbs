@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Approval Status</th>
+            <th>Action</th>
+        </tr>
+        {{#each users}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.gmail}}</td>
+            <td>{{this.phone}}</td>
+            <td>{{#if this.isApproved}}Approved{{else}}Not Approved{{/if}}</td>
+            <td>
+                <form action="/approve-reject" method="post" style="display: inline;">
+                    <input type="hidden" name="userId" value="{{this._id}}">
+                    <button name="action" value="approve">Approve</button>
+                </form>
+                <form action="/approve-reject" method="post" style="display: inline;">
+                    <input type="hidden" name="userId" value="{{this._id}}">
+                    <button name="action" value="reject">Reject</button>
+                </form>
+            </td>
+              </td>
+            <td>
+                <!-- Admin reply to the user -->
+                <input type="text" id="adminMessageInput-{{this._id}}" placeholder="Type a message">
+                <button onclick="sendAdminMessage('{{this._id}}')">Send</button>
+            </td>
+        </tr>
+        {{/each}}
+    </table>
+
+    <!-- Message Display Box -->
+    <div id="messageBox" style="border: 1px solid #ccc; padding: 10px; width: 100%; height: 200px; overflow-y: scroll;">
+        <!-- Messages will appear here -->
+    </div>
+
+    <!-- Message Input and Send Button -->
+    <input type="text" id="messageInput" placeholder="Type your message here">
+    <button id="sendButton">Send</button>
+
+   <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Define userId and userName from the template
+        const userId = "{{user._id}}"; // Assuming `user._id` is available
+        const userName = "{{user.name}}"; // Assuming `user.name` is available
+
+        // Function to send messages with the user's name and message
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+
+            if (message) {
+                socket.emit('sendMessage', { userId, message, userName }); // Send userId, message, and userName
+                messageInput.value = ''; // Clear input after sending
+            }
+        }
+
+        // Listen for incoming messages with the username
+        socket.on('receiveMessage', (data) => {
+            const messageBox = document.getElementById('messageBox');
+            const newMessage = document.createElement('div');
+            newMessage.textContent = `${data.userName}: ${data.message}`; // Display userName with the message
+            messageBox.appendChild(newMessage);
+            messageBox.scrollTop = messageBox.scrollHeight; // Auto-scroll to the latest message
+        });
+
+        // Send button click event
+        document.getElementById('sendButton').addEventListener('click', sendMessage);
+
+        // Allow Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>   
+</body>
+</html>

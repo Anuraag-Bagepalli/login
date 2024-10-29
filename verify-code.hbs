@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code</title>
+</head>
+<body>
+
+    <h2>Verify Code</h2>
+
+    <form action="/verify-code" method="post">
+        <input type="hidden" name="gmail" value="{{gmail}}">
+        <label for="code">Enter the 4-digit code:</label>
+        <input type="text" name="code" required pattern="\d{4}" title="Enter a 4-digit code">
+        <br><br>
+        <input type="submit" value="Verify Code">
+    </form>
+
+</body>
+</html>
